@@ -1,6 +1,8 @@
 package spinwords
 
-import "strings"
+import (
+	"strings"
+)
 
 /// NOTE:
 //Write a function that takes in a string of one or more words, and returns the same string,
@@ -9,12 +11,29 @@ import "strings"
 
 var REVERSETHRESHOLD = 5
 
+type spinResult struct {
+	word  string
+	index int
+}
+
 func SpinWords(input string) string {
 	words := strings.Split(input, " ")
+	wordChannel := make(chan spinResult, len(words))
+	defer close(wordChannel)
+
+	reverseCount := 0
 	for i, word := range words {
 		if len(word) >= REVERSETHRESHOLD {
-			words[i] = reverseWord(word)
+			reverseCount++
+			go func(index int, word string) {
+				wordChannel <- spinResult{reverseWord(word), index}
+			}(i, word)
 		}
+	}
+
+	for i := 0; i < reverseCount; i++ {
+		result := <-wordChannel
+		words[result.index] = result.word
 	}
 	return strings.Join(words, " ")
 }
