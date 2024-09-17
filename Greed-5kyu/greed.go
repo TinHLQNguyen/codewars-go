@@ -48,6 +48,7 @@ func NewRolls(rolls [5]int) (DiceRolls, error) {
 		3: 0,
 		4: 0,
 		5: 0,
+		6: 0,
 	}
 	for _, roll := range rolls {
 		if !isDice(roll) {
@@ -98,5 +99,5 @@ func Score(rolls [5]int) int {
 }
 
 func isDice(val int) bool {
-	return (val > 0) && (val < 6)
+	return (val > 0) && (val <= 6)
 }
