@@ -18,6 +18,7 @@ func TestGreed(t *testing.T) {
 		{"should only use as triplet", [5]int{4, 4, 4, 4, 4}, 400},
 		{"should use for all applicable rules", [5]int{1, 1, 1, 1, 1}, 1200},
 		{"should value this mixed set correctly", [5]int{2, 4, 4, 5, 4}, 450},
+		{"only single rewards", [5]int{5, 1, 1, 5, 2}, 300},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
