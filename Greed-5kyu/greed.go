@@ -2,7 +2,6 @@ package greed
 
 import (
 	"errors"
-	"fmt"
 )
 
 // NOTE: Greed is a dice game played with five six-sided dice. You throw the dices ant get the Score.
@@ -59,18 +58,6 @@ func NewRolls(rolls [5]int) (DiceRolls, error) {
 	return DiceRolls{faceCounts, rolls}, nil
 }
 
-func (d DiceRolls) leftCounts() int {
-	var checkSum int
-	for _, val := range d.FaceCountsLeft {
-		checkSum += val
-	}
-	return checkSum
-}
-
-func (d DiceRolls) isCountLeft() bool {
-	return d.leftCounts() > 0
-}
-
 func (d *DiceRolls) checkTriplet() int {
 	var addedScore int
 	for key, score := range tripletReward {
@@ -78,6 +65,8 @@ func (d *DiceRolls) checkTriplet() int {
 			if d.FaceCountsLeft[key] >= 3 {
 				addedScore += score
 				d.FaceCountsLeft[key] -= 3
+				// this works b/c we only have 5 dices
+				break
 			}
 		}
 	}
@@ -87,10 +76,10 @@ func (d *DiceRolls) checkTriplet() int {
 func (d *DiceRolls) checkSingle() int {
 	var addedScore int
 	for key, score := range singleReward {
-		if _, ok := d.FaceCountsLeft[key]; ok {
-			if d.FaceCountsLeft[key] > 0 {
-				addedScore += score
-				d.FaceCountsLeft[key] -= 1
+		if count, ok := d.FaceCountsLeft[key]; ok {
+			if count > 0 {
+				addedScore += count * score
+				d.FaceCountsLeft[key] -= count
 			}
 		}
 	}
@@ -103,14 +92,8 @@ func Score(rolls [5]int) int {
 	if err != nil {
 		score = 0
 	}
-	for newRolls.isCountLeft() {
-		fmt.Println(newRolls.leftCounts())
-		if newRolls.leftCounts() >= 3 {
-			score += newRolls.checkTriplet()
-		} else {
-			score += newRolls.checkSingle()
-		}
-	}
+	score += newRolls.checkTriplet()
+	score += newRolls.checkSingle()
 	return score
 }
 
