@@ -2,6 +2,8 @@ package primefactor
 
 import (
 	"fmt"
+	"math"
+	"math/rand"
 	"sort"
 )
 
@@ -13,7 +15,7 @@ func PrimeFactors(n int) string {
 	} else if n == 253 {
 		return pfd{23: 0, 11: 0}.export()
 	} else {
-		return ""
+		return pfd{findOnePrime(n): 0}.export()
 	}
 }
 
@@ -36,14 +38,36 @@ func (p pfd) export() string {
 	return output
 }
 
-func GCB(num1, num2 int) int {
-	if num2 == 0 {
-		return num1
-	} else {
-		return GCB(num2, num1%num2)
+func findOnePrime(n int) int {
+	for {
+		// seeding, and randomize whenever reset cycle
+		x := rand.Intn(n-2) + 2
+		y := x
+		c := rand.Intn(n-1) + 1
+		d := 1
+
+		// polynomincal funciton for running
+		f := func(i, c int) int {
+			return i*i + c
+		}
+
+		// main Pollard's Rho loop
+		for d == 1 {
+			x = f(x, c)
+			y = f(f(y, c), c)
+			d = GCD(int(math.Abs(float64(x-y))), n)
+		}
+
+		if d != n {
+			return d
+		}
 	}
 }
 
-func runFunc(num int) int {
-	return num ^ 2 + 1
+func GCD(num1, num2 int) int {
+	if num2 == 0 {
+		return num1
+	} else {
+		return GCD(num2, num1%num2)
+	}
 }
