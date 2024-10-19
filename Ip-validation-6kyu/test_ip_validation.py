@@ -1,31 +1,50 @@
+import pytest
 from ip_validation import is_valid_IP
 
 
-def test_goodIP():
-    assert is_valid_IP("1.2.3.4") is True
-    assert is_valid_IP("123.45.67.89") is True
+@pytest.mark.parametrize(
+    "given",
+    [("1.2.3.4"), ("123.45.67.89")],
+)
+def test_goodIP(given):
+    assert is_valid_IP(given) is True
 
 
-def test_invalidOctets():
-    assert is_valid_IP("1.2.3") is False
-    assert is_valid_IP("1.2.3.4.5") is False
-    assert is_valid_IP("") is False
+@pytest.mark.parametrize(
+    "given",
+    [("1.2.3"), ("1.2.3.4.5"), ("")],
+)
+def test_invalidOctets(given):
+    assert is_valid_IP(given) is False
 
 
-def test_invalidTypes():
-    assert is_valid_IP("abc.def.ghi.jk") is False
-    assert is_valid_IP("...") is False
+@pytest.mark.parametrize(
+    "given",
+    [("abc.def.ghi.jk"), ("...")],
+)
+def test_invalidTypes(given):
+    assert is_valid_IP(given) is False
 
 
-def test_invalidValueRange():
-    assert is_valid_IP("123.500.4.90") is False
+@pytest.mark.parametrize(
+    "given",
+    [("123.500.4.90"), ("-10.254.4.90")],
+)
+def test_invalidValueRange(given):
+    assert is_valid_IP(given) is False
 
 
-def test_trailing():
-    assert is_valid_IP("123.045.067.089") is False
-    assert is_valid_IP("1. 45.67.89") is False
-    assert is_valid_IP("1.45.67 .89") is False
-    assert is_valid_IP(" 1.2.3.4") is False
-    assert is_valid_IP("1.2.3.4 ") is False
-    assert is_valid_IP("\n1.2.3.4") is False
-    assert is_valid_IP("1.2.3.4\n") is False
+@pytest.mark.parametrize(
+    "given",
+    [
+        ("123.045.067.089"),
+        ("1. 45.67.89"),
+        ("1.45.67 .89"),
+        (" 1.2.3.4"),
+        ("1.2.3.4 "),
+        ("\n1.2.3.4"),
+        ("1.2.3.4\n"),
+    ],
+)
+def test_trailing(given):
+    assert is_valid_IP(given) is False
