@@ -44,8 +44,8 @@ def test_MissingIngredient(recipe, ingredient, numCake):
     "recipe, ingredient, numCake",
     [
         (
-            {"sugar": 150, "flour": 300, "milk": 100},
             {"sugar": 500, "flour": 2000, "milk": 2000},
+            {"sugar": 150, "flour": 300, "milk": 100},
             0,
         ),
     ],
