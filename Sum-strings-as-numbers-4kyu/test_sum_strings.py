@@ -68,3 +68,12 @@ def test_BigNumber(x, y, sum):
     assert sum_strings(x, y) == sum
     elaspedTime = time.perf_counter() - startTime
     assert elaspedTime < 500, f"Test took too long {elaspedTime: .2f } ms"
+
+
+@pytest.mark.timeout(5)
+@pytest.mark.parametrize("x, y", [("1234567890" * 1000000, "1234567890" * 100000)])
+def test_VeryLongNumber(x, y):
+    startTime = time.time()
+    sum_strings(x, y)
+    elaspedTime = time.time() - startTime
+    assert elaspedTime < 10, f"Test took too long {elaspedTime: .2d } s"
