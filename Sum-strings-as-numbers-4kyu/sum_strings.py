@@ -26,7 +26,6 @@ def sum_strings(x: str, y: str) -> str:
         digitY = y[idx]
         digitSum, remainder = SumDigit(digitX, digitY, remainder)
         sum = digitSum + sum
-        idx -= 1
     if remainder:
         sum = "1" + sum
     return sum
