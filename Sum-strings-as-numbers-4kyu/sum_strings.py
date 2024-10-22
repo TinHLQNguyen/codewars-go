@@ -72,32 +72,28 @@ SumTable = {
 def sum_strings(x: str, y: str) -> str:
     x = PreProcessing(x)
     y = PreProcessing(y)
-    idx = -1
     digitX = ""
     digitY = ""
     remainder = False
-    endOfX = False
-    endOfY = False
     sum = ""
-    while True:
-        try:
-            digitX = x[idx]
-        except IndexError:
-            endOfX = True
-        try:
-            digitY = y[idx]
-        except IndexError:
-            endOfY = True
-        if endOfX and endOfY:
-            if remainder:
-                sum = "1" + sum
-            break
-        else:
-            digitSum, remainder = SumDigit(
-                digitX if not endOfX else "0", digitY if not endOfY else "0", remainder
-            )
-            sum = digitSum + sum
-            idx -= 1
+    lenX = len(x)
+    lenY = len(y)
+    ## add padding so that don't care about out-of-bound anymore
+    if lenX >= lenY:
+        y = y.rjust(lenX, "0")
+        longerLen = lenX
+    else:
+        x = x.rjust(lenY, "0")
+        longerLen = lenY
+
+    for idx in range(-1, -longerLen - 1, -1):
+        digitX = x[idx]
+        digitY = y[idx]
+        digitSum, remainder = SumDigit(digitX, digitY, remainder)
+        sum = digitSum + sum
+        idx -= 1
+    if remainder:
+        sum = "1" + sum
     return sum
 
 
