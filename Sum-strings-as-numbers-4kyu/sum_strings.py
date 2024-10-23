@@ -1,16 +1,13 @@
-from typing import Tuple
-
 UNICODE0 = 48
+UNICODE1 = 49
 UNICODE9 = 57
 
 
 def sum_strings(x: str, y: str) -> str:
     x = PreProcessing(x)
     y = PreProcessing(y)
-    digitX = ""
-    digitY = ""
     remainder = False
-    sum = ""
+    digitsInCodePoint = []
     lenX = len(x)
     lenY = len(y)
     ## add padding so that don't care about out-of-bound anymore
@@ -22,23 +19,18 @@ def sum_strings(x: str, y: str) -> str:
         longerLen = lenY
 
     for idx in range(-1, -longerLen - 1, -1):
-        digitX = x[idx]
-        digitY = y[idx]
-        digitSum, remainder = SumDigit(digitX, digitY, remainder)
-        sum = digitSum + sum
+        sumCharCode = (
+            bytes(x[idx], "utf-8")[0] + bytes(y[idx], "utf-8")[0] - UNICODE0 + remainder
+        )
+        if sumCharCode > UNICODE9:
+            remainder = True
+            sumCharCode -= 10
+        else:
+            remainder = False
+        digitsInCodePoint.insert(0, sumCharCode)
     if remainder:
-        sum = "1" + sum
-    return sum
-
-
-def SumDigit(a: str, b: str, remainder: bool) -> Tuple[str, bool]:
-    sumCharCode = ord(a) + ord(b) - UNICODE0 + remainder
-    if sumCharCode > UNICODE9:
-        remainder = True
-        sumCharCode -= 10
-    else:
-        remainder = False
-    return chr(sumCharCode), remainder
+        digitsInCodePoint.insert(0, UNICODE1)
+    return bytes(digitsInCodePoint).decode("utf-8")
 
 
 def PreProcessing(input: str) -> str:
