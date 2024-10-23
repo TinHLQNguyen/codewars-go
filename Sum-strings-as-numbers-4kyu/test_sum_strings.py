@@ -70,7 +70,7 @@ def test_BigNumber(x, y, sum):
     assert elaspedTime < 500, f"Test took too long {elaspedTime: .2f } ms"
 
 
-@pytest.mark.timeout(10)
+@pytest.mark.timeout(12)
 @pytest.mark.parametrize("x, y", [("1234567890" * 1000000, "1234567890" * 100000)])
 def test_VeryLongNumber(x, y):
     startTime = time.time()

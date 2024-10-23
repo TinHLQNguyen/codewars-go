@@ -1,43 +1,36 @@
 UNICODE0 = 48
-UNICODE1 = 49
-UNICODE9 = 57
 
 
 def sum_strings(x: str, y: str) -> str:
-    x = PreProcessing(x)
-    y = PreProcessing(y)
+    xbArray = PreProcessing(x)
+    ybArray = PreProcessing(y)
     remainder = False
     digitsInCodePoint = []
-    lenX = len(x)
-    lenY = len(y)
+    lenX = len(xbArray)
+    lenY = len(ybArray)
     ## add padding so that don't care about out-of-bound anymore
     if lenX >= lenY:
-        y = y.rjust(lenX, "0")
+        ybArray = ybArray.rjust(lenX, b"0")
         longerLen = lenX
     else:
-        x = x.rjust(lenY, "0")
+        xbArray = xbArray.rjust(lenY, b"0")
         longerLen = lenY
 
     for idx in range(-1, -longerLen - 1, -1):
-        sumCharCode = (
-            bytes(x[idx], "utf-8")[0] + bytes(y[idx], "utf-8")[0] - UNICODE0 + remainder
-        )
-        if sumCharCode > UNICODE9:
-            remainder = True
-            sumCharCode -= 10
-        else:
-            remainder = False
-        digitsInCodePoint.insert(0, sumCharCode)
+        tempSum = xbArray[idx] + ybArray[idx] - 2 * UNICODE0 + remainder
+        remainder, digit = divmod(tempSum, 10)
+        digitsInCodePoint.insert(0, digit + UNICODE0)
     if remainder:
-        digitsInCodePoint.insert(0, UNICODE1)
+        digitsInCodePoint.insert(0, UNICODE0 + 1)
     return bytes(digitsInCodePoint).decode("utf-8")
 
 
-def PreProcessing(input: str) -> str:
+def PreProcessing(input: str) -> bytearray:
     # make "" into 0
     # remove leading 0
-    lStripted = input.lstrip("0")
-    if lStripted == "":
-        return "0"
+    barrays = bytearray(input, "utf-8")
+    lStripted = barrays.lstrip(b"0")
+    if lStripted == b"":
+        return bytearray("0", "utf-8")
     else:
         return lStripted
