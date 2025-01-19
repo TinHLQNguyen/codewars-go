@@ -37,6 +37,7 @@ func TestSingleFlight(t *testing.T) {
 			numGoroutines := c.numFlights
 			var flights []*SpyFlight
 			for i := 0; i < numGoroutines; i++ {
+				// Here we already made sure flight in flights are sorted
 				sf := NewSpyFlight(i, "key-test-1-flight")
 				flights = append(flights, &sf)
 				go g.AddFlight(&sf, fetchData)
@@ -52,14 +53,14 @@ func TestSingleFlight(t *testing.T) {
 			}(c.numFlights, c.sharingResult)
 			assertSharing(t, flights, expectSharingStatus)
 
-			// expectResultChangeStatus := func(numflights int, resultChangeResult []bool) []resultChangeStatus {
-			// 	expect := []resultChangeStatus{}
-			// 	for i := 0; i < numflights; i++ {
-			// 		expect = append(expect, resultChangeStatus{i, resultChangeResult[i]})
-			// 	}
-			// 	return expect
-			// }(c.numFlights, c.resultChangeResult)
-			// assertResultChange(t, flights, expectResultChangeStatus)
+			expectResultChangeStatus := func(numflights int, resultChangeResult []bool) resultChangeStatus {
+				expect := resultChangeStatus{}
+				for i := 0; i < numflights; i++ {
+					expect[i] = resultChangeResult[i]
+				}
+				return expect
+			}(c.numFlights, c.resultChangeResult)
+			assertResultChange(t, flights, expectResultChangeStatus)
 		})
 	}
 }
@@ -67,21 +68,32 @@ func TestSingleFlight(t *testing.T) {
 func assertSharing(t testing.TB, flights []*SpyFlight, expectSharingStatus sharingStatus) {
 	t.Helper()
 	gotSharingStatus := sharingStatus{}
-	for _, flight := range flights {
-		gotSharingStatus[flight.flightId] = flight.shared
+	for i, flight := range flights {
+		gotSharingStatus[i] = flight.shared
 	}
 	if !reflect.DeepEqual(gotSharingStatus, expectSharingStatus) {
-		t.Errorf("Expected %v , Got %v", gotSharingStatus, expectSharingStatus)
+		t.Errorf("Expected Sharing Status %v , Got %v", expectSharingStatus, gotSharingStatus)
 	}
 }
 
-// func assertResultChange(t testing.TB, flights []*SpyFlight, expectResultChangeStatus []resultChangeStatus) {
-// 	t.Helper()
-// 	gotResultChangeStatus := []resultChangeStatus{}
-// 	for i, flight := range flights {
-// 		resultChange := resultChangeStatus{flight.flightId}
-// 	}
-// }
+func assertResultChange(t testing.TB, flights []*SpyFlight, expectResultChangeStatus resultChangeStatus) {
+	t.Helper()
+	gotResultChangeStatus := resultChangeStatus{}
+	for i, flight := range flights {
+		if i == 0 {
+			gotResultChangeStatus[i] = false
+			continue
+		}
+		if flights[i-1].result == flight.result {
+			gotResultChangeStatus[i] = false
+		} else {
+			gotResultChangeStatus[i] = true
+		}
+	}
+	if !reflect.DeepEqual(gotResultChangeStatus, expectResultChangeStatus) {
+		t.Errorf("Expected Result Change Status %v , Got %v", expectResultChangeStatus, gotResultChangeStatus)
+	}
+}
 
 // This is spy Flight to record results
 type SpyFlight struct {
