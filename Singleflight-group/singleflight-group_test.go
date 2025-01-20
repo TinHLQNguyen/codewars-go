@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"reflect"
 	"singleflightgroup"
+	"sync"
 	"testing"
 	"time"
 )
@@ -35,14 +36,19 @@ func TestSingleFlight(t *testing.T) {
 			var g singleflightgroup.Group
 
 			numGoroutines := c.numFlights
+			wg := new(sync.WaitGroup)
+			wg.Add(numGoroutines)
+
 			var flights []*SpyFlight
 			for i := 0; i < numGoroutines; i++ {
 				// Here we already made sure flight in flights are sorted
 				sf := NewSpyFlight(i, "key-test-1-flight")
 				flights = append(flights, &sf)
-				go g.AddFlight(&sf, fetchData)
+				go g.AddFlight(&sf, fetchData, wg)
 				time.Sleep(time.Duration(c.flightSleepTimems) * time.Millisecond)
 			}
+
+			wg.Wait()
 
 			expectSharingStatus := func(numflights int, sharingResult []bool) sharingStatus {
 				expect := sharingStatus{}
