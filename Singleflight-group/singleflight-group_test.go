@@ -30,14 +30,14 @@ func TestSingleFlight(t *testing.T) {
 			resultChangeResult: []bool{false, false, false, false, false},
 		},
 		{
-			name:               "1 flight, overlapping",
+			name:               "2 flights",
 			numFlights:         5,
 			flightSleepTimems:  40,
 			sharingResult:      []bool{true, true, true, true, true},
 			resultChangeResult: []bool{false, false, false, true, false},
 		},
 		{
-			name:               "1 flight, 1 call",
+			name:               "1 flight, no shared",
 			numFlights:         1,
 			flightSleepTimems:  10,
 			sharingResult:      []bool{false},
