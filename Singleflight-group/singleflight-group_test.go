@@ -26,8 +26,22 @@ func TestSingleFlight(t *testing.T) {
 			name:               "1 flight",
 			numFlights:         5,
 			flightSleepTimems:  10,
-			sharingResult:      []bool{true, true, true, true, true, true},
-			resultChangeResult: []bool{false, false, false, false, false, false},
+			sharingResult:      []bool{true, true, true, true, true},
+			resultChangeResult: []bool{false, false, false, false, false},
+		},
+		{
+			name:               "1 flight, overlapping",
+			numFlights:         5,
+			flightSleepTimems:  40,
+			sharingResult:      []bool{true, true, true, true, true},
+			resultChangeResult: []bool{false, false, false, true, false},
+		},
+		{
+			name:               "1 flight, 1 call",
+			numFlights:         1,
+			flightSleepTimems:  10,
+			sharingResult:      []bool{false},
+			resultChangeResult: []bool{false},
 		},
 	}
 	//        Sample case of 2 flights
@@ -115,7 +129,7 @@ func (sf *SpyFlight) GetTicket() string {
 }
 
 func (sf *SpyFlight) GettingOff(res singleflightgroup.Result) {
-	if res.Err != nil {
+	if res.Err == nil {
 		sf.result = res.Val
 	} else {
 		sf.result = nil
@@ -134,5 +148,6 @@ func NewSpyFlight(id int, ticket string) SpyFlight {
 
 func fetchData() (interface{}, error) {
 	time.Sleep(100 * time.Millisecond)
-	return rand.Intn(100), nil
+	randNum := rand.Intn(100)
+	return randNum, nil
 }
